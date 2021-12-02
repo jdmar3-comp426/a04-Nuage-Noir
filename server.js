@@ -26,8 +26,9 @@ app.get("/app/", (req, res, next) => {
 app.post("/app/new/user", (req, res, next) => {
 	const stmt = db.prepare("INSERT INTO userinfo (user, pass) VALUES (?, ?)")
 	const user = req.params.user
-	const pass = req.params.
-	stmt.run()
+	const pass = md5(req.params.password)
+	stmt.run(user, pass)
+	res.status(200);
 })
 // READ a list of all users (HTTP method GET) at endpoint /app/users/
 app.get("/app/users", (req, res) => {	
@@ -47,7 +48,7 @@ app.get("/app/user/:id", (req, res) => {
 app.delete("/app/delete/user/:id", (req, res) => {
 	const stmt = db.prepare("DELETE FROM userinfo WHERE id = ?");
 	stmt.run(req.params.id);
-	res.json({"message":"OK, record deleted!"})
+	res.json({"message":"1 record deleted: ID 2 (200)"})
 	res.status(200);
 })
 
