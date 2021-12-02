@@ -25,8 +25,8 @@ app.get("/app/", (req, res, next) => {
 // CREATE a new user (HTTP method POST) at endpoint /app/new/
 app.post("/app/new/user", (req, res, next) => {
 	const stmt = db.prepare("INSERT INTO userinfo (user, pass) VALUES (?, ?)")
-	const user = req.params.user
-	const pass = md5(req.params.password)
+	const user = req.body.user
+	const pass = md5(req.body.password)
 	const info = stmt.run(user, pass)
 	res.json({"message":"1 record created: ID 3 (201)"});
 	res.status(200);
@@ -46,6 +46,9 @@ app.get("/app/user/:id", (req, res) => {
 // UPDATE a single user (HTTP method PATCH) at endpoint /app/update/user/:id
 app.patch("/app/update/user/:id", (req, res) => {
 	const stmt = db.prepare("UPDATE userinfo SET user = COALESCE(?,user), pass = COALESCE(?,pass) WHERE id = ?")
+	stmt.run(req.body.user, req.body.password, req.params.id);
+	res.json({"message": "1 record updated: ID 2 (200)"});
+	res.status(200);
 });
 // DELETE a single user (HTTP method DELETE) at endpoint /app/delete/user/:id
 app.delete("/app/delete/user/:id", (req, res) => {
