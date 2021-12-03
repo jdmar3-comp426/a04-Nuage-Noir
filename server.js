@@ -10,7 +10,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Set server port
-HTTP_PORT = 5000;
+var HTTP_PORT = 5000;
 // Start server
 app.listen(HTTP_PORT, () => {
     console.log("Server running on port %PORT%".replace("%PORT%",HTTP_PORT))
@@ -23,13 +23,15 @@ app.get("/app/", (req, res, next) => {
 
 // Define other CRUD API endpoints using express.js and better-sqlite3
 // CREATE a new user (HTTP method POST) at endpoint /app/new/
-app.post("/app/new/", (req, res, next) => {
-	const stmt = db.prepare("INSERT INTO userinfo (user, pass) VALUES (?, ?)")
-	const user = req.body.user
-	const pass = md5(req.body.password)
-	const info = stmt.run(user, pass)
-	res.json({"message":"1 record created: ID 3 (201)"});
-	res.status(200);
+app.post("/app/new/user", (req, res, next) => {
+	console.log(req.body);
+	var data = {
+		user: req.body.user,
+		pass: req.body.pass ? md5(req.body.pass) : null
+	};
+	const stmt = db.prepare("INSERT INTO userinfo (user, pass) VALUES (?, ?)");
+	const info = stmt.run(data.user, data.pass);
+	res.status(201).json({"message": info.changes + "record created: ID "+ info.lastInsertRow + "(201)"});
 });
 // READ a list of all users (HTTP method GET) at endpoint /app/users/
 app.get("/app/users", (req, res) => {	
@@ -52,8 +54,7 @@ app.patch("/app/update/user/:id", (req, res) => {
 });
 // DELETE a single user (HTTP method DELETE) at endpoint /app/delete/user/:id
 app.delete("/app/delete/user/:id", (req, res) => {
-	const stmt = db.prepare("DELETE FROM userinfo WHERE id = ?");
-	stmt.run(req.params.id);
+	const stmt = db.prepare("DELETE FROM userinfo WHERE id = ?").run(req.params.id);
 	res.json({"message":"1 record deleted: ID 2 (200)"})
 	res.status(200);
 });
@@ -63,3 +64,5 @@ app.use(function(req, res){
 	res.json({"message":"Your API is working"});
     res.status(404);
 });
+
+
